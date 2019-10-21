@@ -3,12 +3,18 @@
 Simple GraphQL Java + SpringBoot + WebFlux evaluation. Classic Library app.
 
 ## Starting the application
-
-In the project's root folder:
+To start the application localy, run in the project's root folder:
 
 ```shell script
 ./gradlew bootRun
 ```
+To start it on Docker:
+```shell script
+./gradlew clean bootJar
+docker build -t graphql-playground .
+docker run -d --rm -p 8080:8080 graphql-playground
+```
+The application exposes single GraphQL endpoint on http://localhost:8080/graphql 
 ## Sample queries
 GraphQL schema: [src/main/resources/graphql/schema.graphqls](src/main/resources/graphql/schema.graphqls)
 #### list books
