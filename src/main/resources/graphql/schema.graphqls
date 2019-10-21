@@ -1,11 +1,12 @@
 type QueryType {
     books(
         id: String
-        title: String
+        titleRegex: String
+        authorId: String
     ): [Book!]!,
     authors(
         id: String
-        name: String
+        nameRegex: String
     ): [Author!]!
 }
 
