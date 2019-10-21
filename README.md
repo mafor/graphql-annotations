@@ -12,7 +12,7 @@ In the project's root folder:
 ## Sample queries
 GraphQL schema: [src/main/resources/graphql/schema.graphqls](src/main/resources/graphql/schema.graphqls)
 #### list books
-######GraphQL:
+GraphQL:
 ```graphql
 query listBooks {
     books {
@@ -25,7 +25,7 @@ query listBooks {
     }
 }
 ```
-######Curl:
+Curl:
 ```shell script
 curl --request POST \
   --url http://localhost:8080/graphql \
@@ -34,7 +34,7 @@ curl --request POST \
   --data '{"query":"query listBooks {books {id, title, authors {id, name}}}"}'
 ```
 #### list authors
-######GraphQL:
+GraphQL:
 ```graphql
 query listAuthors {
   authors {
@@ -47,7 +47,7 @@ query listAuthors {
   }
 }
 ```
-######Curl:
+Curl:
 ```shell script
 curl --request POST \
   --url http://localhost:8080/graphql \
@@ -56,7 +56,7 @@ curl --request POST \
   --data '{"query":"query listAuthors {authors {id, name, books {id, title}}}"}'
 ```
 #### add a book
-######GraphQL:
+GraphQL:
 ```graphql
 mutation createBook {
     addBook(authorIds: ["1"], title: "New book") {
@@ -64,7 +64,7 @@ mutation createBook {
     }
 }
 ```
-######Curl:
+Curl:
 ```shell script
 curl --request POST \
   --url http://localhost:8080/graphql \
@@ -73,13 +73,13 @@ curl --request POST \
   --data '{"query":"mutation createBook {addBook(authorIds: [\"1\"], title: \"New book\") {id}}"}'
 ```
 #### remove a book
-######GraphQL:
+GraphQL:
 ```graphql
 mutation removeBook {
 	removeBook(id: "1")
 }
 ```
-######Curl:
+Curl:
 ```shell script
 curl --request POST \
   --url http://localhost:8080/graphql \
