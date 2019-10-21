@@ -1,0 +1,38 @@
+type QueryType {
+    books(
+        id: String
+        title: String
+    ): [Book!]!,
+    authors(
+        id: String
+        name: String
+    ): [Author!]!
+}
+
+type MutationType {
+    addBook(
+        title: String,
+        authorIds: [String!]!
+    ): Book!,
+    removeBook(id: String) : Boolean!
+    addAuthor(
+        name: String
+    ): Author!
+}
+
+type Book {
+    id: String!
+    title: String!
+    authors: [Author!]!
+}
+
+type Author {
+    id: String!
+    name: String!
+    books: [Book!]!
+}
+
+schema {
+    query: QueryType
+    mutation: MutationType
+}
