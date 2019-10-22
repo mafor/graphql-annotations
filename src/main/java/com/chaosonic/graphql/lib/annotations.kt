@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
-annotation class GraphQLController
+annotation class GraphQLHandler
 
 @Target(AnnotationTarget.FUNCTION)
 @Retention(AnnotationRetention.RUNTIME)

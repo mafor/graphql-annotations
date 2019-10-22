@@ -4,12 +4,12 @@ import com.chaosonic.graphql.data.Author
 import com.chaosonic.graphql.data.Book
 import com.chaosonic.graphql.data.DataRepository
 import com.chaosonic.graphql.lib.GraphQLArgument
-import com.chaosonic.graphql.lib.GraphQLController
+import com.chaosonic.graphql.lib.GraphQLHandler
 import com.chaosonic.graphql.lib.GraphQLMapping
 import com.chaosonic.graphql.lib.GraphQLSource
 
-@GraphQLController
-class GraphQLController(val dataRepository: DataRepository) {
+@GraphQLHandler
+class GraphQLHandler(val dataRepository: DataRepository) {
 
     @GraphQLMapping("QueryType", "books")
     fun listBooks(@GraphQLArgument("id") id : String?,
