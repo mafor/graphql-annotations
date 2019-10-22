@@ -26,15 +26,14 @@ class GraphQLController(val graphQl: GraphQL) {
     fun requestGet(
         @RequestParam(name = "query") query: String,
         @RequestParam(name = "variables", required = false) variables: Map<String, Any>?,
-        @RequestParam(name = "operationName", required = false) operationName: String?
-    ) =
+        @RequestParam(name = "operationName", required = false) operationName: String?) =
 
         Mono.just(
-            ExecutionInput.newExecutionInput()
-                .variables(variables)
-                .operationName(operationName)
-                .query(query)
-        )
+                ExecutionInput.newExecutionInput()
+                    .variables(variables)
+                    .operationName(operationName)
+                    .query(query)
+            )
             .flatMap { Mono.fromCompletionStage(graphQl.executeAsync(it)) }
             .map { it.toSpecification() }
 

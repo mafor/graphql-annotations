@@ -1,6 +1,6 @@
 # GraphQL playground
 
-Simple GraphQL Java + SpringBoot + WebFlux evaluation. 
+GraphQL Java + SpringBoot + WebFlux evaluation. 
 Prove of concept of a declarative, annotations based configuration (see [GraphQLHandler](/src/main/java/com/chaosonic/graphql/GraphQLHandler.kt))
 ## Starting the application
 To start the application localy, run in the project's root folder:

@@ -20,15 +20,33 @@ private data class Data @JsonCreator constructor(
     @JsonProperty("authors") val authors: Array<Author>
 )
 
+private abstract class BookMixin @JsonCreator constructor(
+    @JsonProperty("id") val id: String = "",
+    @JsonProperty("title") val title: String,
+    @JsonProperty("authorIds") val authorIds:  List<String>
+)
+
+private abstract class AuthorMixin @JsonCreator constructor(
+    @JsonProperty("id") val id: String = "",
+    @JsonProperty("name") val name: String
+)
+
 @Configuration
 class DataRepositoryConfiguration {
 
     @Bean
-    fun dataRepository(@Value("classpath:/data/data.yml") dataYml: Resource): DataRepository {
+    fun dataRepository(@Value("classpath:/data/data.yml") dataYml: Resource): DataRepository =
 
-        val data = ObjectMapper(YAMLFactory()).readValue(dataYml.inputStream, Data::class.java)
-        return InMemoryDataRepository(data)
-    }
+        dataYml.inputStream.use {
+
+            val data = ObjectMapper(YAMLFactory())
+                .addMixIn(Author::class.java, AuthorMixin::class.java)
+                .addMixIn(Book::class.java, BookMixin::class.java)
+                .readValue(dataYml.inputStream, Data::class.java)
+
+            InMemoryDataRepository(data)
+        }
+
 }
 
 private class InMemoryDataRepository(var data: Data) : DataRepository {

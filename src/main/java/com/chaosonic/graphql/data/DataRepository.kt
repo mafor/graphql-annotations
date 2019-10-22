@@ -1,17 +1,14 @@
 package com.chaosonic.graphql.data
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
-
-data class Book @JsonCreator constructor(
-    @JsonProperty("id") val id: String = "",
-    @JsonProperty("title") val title: String,
-    @JsonProperty("authorIds") val authorIds:  List<String>
+data class Book (
+    val id: String = "",
+    val title: String,
+    val authorIds:  List<String>
 )
 
-data class Author @JsonCreator constructor(
-    @JsonProperty("id") val id: String = "",
-    @JsonProperty("name") val name: String
+data class Author (
+    val id: String = "",
+    val name: String
 )
 
 interface DataRepository {

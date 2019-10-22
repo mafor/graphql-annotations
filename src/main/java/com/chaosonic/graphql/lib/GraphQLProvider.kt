@@ -15,7 +15,7 @@ class GraphQLConfigurationError(message: String) : RuntimeException(message)
 @Configuration
 class GraphQLProvider {
 
-    @Autowired
+    @Autowired(required = false)
     val runtimeWiringCustomizers: List<RuntimeWiringCustomizer> = LinkedList()
 
     @Bean
@@ -34,7 +34,7 @@ class GraphQLProvider {
 @Configuration
 class TypeDefinitionRegistryProvider {
 
-    @Autowired
+    @Autowired(required = false)
     val typeDefinitionRegistryCustomizers: List<TypeDefinitionRegistryCustomizer> = LinkedList()
 
     @Bean
