@@ -1,3 +1,5 @@
+![codecov](https://codecov.io/gh/mafor/graphql-playground/graphs/badge.svg?token=GDPwHlsKi1)
+
 # GraphQL playground
 
 GraphQL Java + SpringBoot + WebFlux evaluation. 
