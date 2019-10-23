@@ -7,7 +7,6 @@ import graphql.schema.idl.TypeDefinitionRegistry
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.context.annotation.Lazy
 import java.util.*
 
 class GraphQLConfigurationError(message: String) : RuntimeException(message)
@@ -15,20 +14,28 @@ class GraphQLConfigurationError(message: String) : RuntimeException(message)
 @Configuration
 class GraphQLProvider {
 
+    @Bean
+    fun graphQl(typeDefinitionRegistry: TypeDefinitionRegistry, runtimeWiring: RuntimeWiring): GraphQL {
+
+        val schema = SchemaGenerator().makeExecutableSchema(typeDefinitionRegistry, runtimeWiring)
+        return GraphQL.newGraphQL(schema).build()
+    }
+}
+
+@Configuration
+class RuntimeWiringProvider {
+
     @Autowired(required = false)
     val runtimeWiringCustomizers: List<RuntimeWiringCustomizer> = LinkedList()
 
     @Bean
-    @Lazy
-    fun graphQl(typeDefinitionRegistry: TypeDefinitionRegistry): GraphQL {
+    fun runtimeWiring(): RuntimeWiring {
 
         val runtimeWiringBuilder = RuntimeWiring.newRuntimeWiring()
         runtimeWiringCustomizers.forEach { it.customize(runtimeWiringBuilder) }
-        val schema = SchemaGenerator().makeExecutableSchema(typeDefinitionRegistry, runtimeWiringBuilder.build())
 
-        return GraphQL.newGraphQL(schema).build()
+        return runtimeWiringBuilder.build()
     }
-
 }
 
 @Configuration
@@ -38,12 +45,11 @@ class TypeDefinitionRegistryProvider {
     val typeDefinitionRegistryCustomizers: List<TypeDefinitionRegistryCustomizer> = LinkedList()
 
     @Bean
-    @Lazy
     fun typeDefinitionRegistry(): TypeDefinitionRegistry {
 
         val typeDefinitionRegistry = TypeDefinitionRegistry()
         typeDefinitionRegistryCustomizers.forEach { it.customize(typeDefinitionRegistry) }
 
-        return typeDefinitionRegistry;
+        return typeDefinitionRegistry
     }
 }

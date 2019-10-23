@@ -2,6 +2,10 @@ package com.chaosonic.graphql.lib
 
 import org.springframework.stereotype.Component
 
+/**
+ * Marks classes which should be searched for methods
+ * annotated with the [GraphQLMapping] annotation
+ */
 @Component
 @Target(AnnotationTarget.CLASS)
 @Retention(AnnotationRetention.RUNTIME)

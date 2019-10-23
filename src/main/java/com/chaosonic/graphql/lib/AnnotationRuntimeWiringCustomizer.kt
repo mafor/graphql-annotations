@@ -9,79 +9,97 @@ import org.springframework.stereotype.Component
 import java.lang.reflect.Method
 import java.lang.reflect.Parameter
 
+private typealias ParameterHandler = (env: DataFetchingEnvironment) -> Any?
+private typealias MethodHandler = (env: DataFetchingEnvironment) -> Any?
+
+private fun location(method: Method) = "${method.declaringClass.name}.${method.name}"
+
 @Component
 class AnnotationRuntimeWiringCustomizer(
-    private val typeDefinitionRegistry: TypeDefinitionRegistry,
-    private val applicationContext: ApplicationContext
+    private val applicationContext: ApplicationContext,
+    private val validator: GraphQLMappingValidator,
+    private val methodHandlerFactory: MethodHandlerFactory
 ) : RuntimeWiringCustomizer {
 
     @Suppress("JAVA_CLASS_ON_COMPANION")
     private companion object {
-
         @JvmStatic
         private val log = LoggerFactory.getLogger(javaClass.enclosingClass)
-
-        private fun <T> DataFetchingEnvironment.getArgument(name: String, clazz: Class<T>): T =
-            this.getArgument<T>(name)
-
-        private fun <T> DataFetchingEnvironment.getSource(clazz: Class<T>): T = this.getSource<T>()
     }
 
     override fun customize(builder: RuntimeWiring.Builder) {
 
-        val graphQLHandlers = applicationContext.getBeansWithAnnotation(GraphQLHandler::class.java)
+        applicationContext.getBeansWithAnnotation(GraphQLHandler::class.java).forEach { (_, bean) ->
+            bean.javaClass.declaredMethods.forEach { method ->
+                method.getDeclaredAnnotation(GraphQLMapping::class.java)?.let { annotation ->
 
-        graphQLHandlers.forEach { (_, handler) ->
-            handler.javaClass.declaredMethods.forEach { registerMethodHandler(builder, handler, it) }
+                    log.info("Registering data fetcher for the ${annotation.type}.${annotation.field} [${location(method)}]")
+                    validator.validate(annotation, method)
+
+                    builder.type(annotation.type) {
+                        it.dataFetcher(
+                            annotation.field,
+                            methodHandlerFactory.create(bean, method)
+                        )
+                    }
+                }
+            }
         }
     }
+}
 
-    private fun registerMethodHandler(runtimeWiring: RuntimeWiring.Builder, bean: Any, method: Method) {
+@Component
+class GraphQLMappingValidator(private val typeDefinitionRegistry: TypeDefinitionRegistry) {
 
-        val annotation = method.getDeclaredAnnotation(GraphQLMapping::class.java) ?: return
-        val methodName = "${bean.javaClass.name}.${method.name}"
-
-        log.info("Registering GraphQL mapping for ${annotation.type}.${annotation.field} [$methodName]")
+    fun validate(annotation: GraphQLMapping, method: Method) {
 
         if (typeDefinitionRegistry.getType(annotation.type).isEmpty) {
-            throw GraphQLConfigurationError("Type '${annotation.type}' not found in the schema [$methodName]")
+            throw GraphQLConfigurationError(
+                "Type '${annotation.type}' not found in the schema [${location(method)}]"
+            )
         }
+    }
+}
 
-        val parameterHandlers = method.parameters
+@Component
+class MethodHandlerFactory {
+
+    private val parameterHandlers = listOf(
+        ::graphQLArgumentAnnotationHandler,
+        ::sourceAnnotationHandler,
+        ::dataFetchingEnvironmentParameterTypeHandler
+    )
+
+    fun create(bean: Any, method: Method): MethodHandler {
+
+        return method.parameters
             .map { param ->
-                createParamHandler(param)
-                    ?: throw GraphQLConfigurationError("Unknown parameter '${param.name}' [$methodName]")
+                parameterHandlers.asSequence().map { it(param) }.firstOrNull { it != null }
+                    ?: throw GraphQLConfigurationError("Unknown parameter '${param.name}' [${location(method)}]")
             }
-
-        val methodHandler =
-            { env: DataFetchingEnvironment ->
-                method.invoke(
-                    bean,
-                    *(parameterHandlers.map { h -> h(env) }.toTypedArray())
-                )
-            }
-
-        runtimeWiring.type(annotation.type) { it.dataFetcher(annotation.field, methodHandler) }
+            .let { params -> { env -> method.invoke(bean, *(params.map { h -> h(env) }.toTypedArray())) } }
     }
 
-    private fun createParamHandler(param: Parameter): ((DataFetchingEnvironment) -> Any?)? {
+    private fun graphQLArgumentAnnotationHandler(param: Parameter): ParameterHandler? =
 
-        val paramAnnotation = param.getAnnotation(GraphQLArgument::class.java)
-
-        if (paramAnnotation != null) {
-            return { env: DataFetchingEnvironment -> env.getArgument(paramAnnotation.name, param.type) }
+        param.getAnnotation(GraphQLArgument::class.java)?.let {
+            { env: DataFetchingEnvironment -> env.getArgument(it.name, param.type) }
         }
 
-        val sourceAnnotation = param.getAnnotation(GraphQLSource::class.java)
+    private fun sourceAnnotationHandler(param: Parameter): ParameterHandler? =
 
-        if (sourceAnnotation != null) {
-            return { env: DataFetchingEnvironment -> env.getSource(param.type) }
+        param.getAnnotation(GraphQLSource::class.java)?.let {
+            { env: DataFetchingEnvironment -> env.getSource(param.type) }
         }
+
+    private fun dataFetchingEnvironmentParameterTypeHandler(param: Parameter): ParameterHandler? =
 
         if (param.type.isAssignableFrom(DataFetchingEnvironment::class.java)) {
-            return { env: DataFetchingEnvironment -> env }
-        }
+            { env: DataFetchingEnvironment -> env }
+        } else null
 
-        return null
-    }
+    private fun <T> DataFetchingEnvironment.getArgument(name: String, clazz: Class<T>): T = getArgument<T>(name)
+
+    private fun <T> DataFetchingEnvironment.getSource(clazz: Class<T>): T = getSource<T>()
+
 }
