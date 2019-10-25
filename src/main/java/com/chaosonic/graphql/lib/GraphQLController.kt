@@ -53,7 +53,6 @@ class GraphQLController(val graphQl: GraphQL) {
                     .query(it.query)
             }
             .flatMap { Mono.fromCompletionStage(graphQl.executeAsync(it)) }
-            .onErrorReturn(ExecutionResultImpl.newExecutionResult().addError(null).build())
             .map { it.toSpecification() }
 
 }
