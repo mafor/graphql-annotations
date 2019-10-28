@@ -1,4 +1,4 @@
-![codecov](https://codecov.io/gh/mafor/graphql-playground/graphs/badge.svg?token=GDPwHlsKi1)
+[![codecov](https://codecov.io/gh/mafor/graphql-playground/branch/master/graph/badge.svg?token=GDPwHlsKi1)](https://codecov.io/gh/mafor/graphql-playground)
 
 # GraphQL playground
 
