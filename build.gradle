@@ -7,8 +7,14 @@ plugins {
 	id 'jacoco'
 }
 
+ext {
+    set('springCloudVersion', "Greenwich.SR3")
+    set('javaVersion', '10')
+}
+
 group = 'com.chaosonic.playground'
 version = '0.0.1-SNAPSHOT'
+sourceCompatibility = javaVersion
 
 repositories {
 	mavenCentral()
@@ -36,12 +42,12 @@ dependencyManagement {
 }
 compileKotlin {
 	kotlinOptions {
-		jvmTarget = "11"
+		jvmTarget = javaVersion
 	}
 }
 compileTestKotlin {
 	kotlinOptions {
-		jvmTarget = "11"
+		jvmTarget = javaVersion
 	}
 }
 jacocoTestReport {
