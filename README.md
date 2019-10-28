@@ -1,4 +1,5 @@
 [![codecov](https://codecov.io/gh/mafor/graphql-playground/branch/master/graph/badge.svg?token=GDPwHlsKi1)](https://codecov.io/gh/mafor/graphql-playground)
+[![Build status](https://teamcity.jetbrains.com/guestAuth/app/rest/builds/buildType:(id:TestDrive_GraphqlPlayground_Build)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=TestDrive_GraphqlPlayground_Build)
 
 # GraphQL playground
 
