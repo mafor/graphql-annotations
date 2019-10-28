@@ -53,7 +53,7 @@ class GraphQLMappingValidator(private val typeDefinitionRegistry: TypeDefinition
 
     fun validate(annotation: GraphQLMapping, method: Method) {
 
-        if (typeDefinitionRegistry.getType(annotation.type).isEmpty) {
+        if (typeDefinitionRegistry.getType(annotation.type).isEmpty()) {
             throw GraphQLConfigurationError(
                 "Type '${annotation.type}' not found in the schema [${location(method)}]"
             )
