@@ -88,7 +88,7 @@ class GraphQlApplicationTests {
 
         val request = RequestEntity.post(URI.create("/$path"))
             .contentType(MediaType.APPLICATION_JSON)
-            .body("{\"query\": \"${query.replace("\"", "\\\"")}\"}");
+            .body("{\"query\": \"${query.replace("\"", "\\\"")}\"}")
 
         val response = testRestTemplate!!.exchange(request, String::class.java)
         assertThat(response.statusCodeValue).isEqualTo(200)

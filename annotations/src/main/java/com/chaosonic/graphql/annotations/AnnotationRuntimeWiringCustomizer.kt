@@ -85,13 +85,13 @@ open class MethodHandlerFactory {
     private fun graphQLArgumentAnnotationHandler(param: Parameter): ParameterHandler? =
 
         param.getAnnotation(GraphQLArgument::class.java)?.let {
-            { env: DataFetchingEnvironment -> env.getArgument(it.name, param.type) }
+            { env: DataFetchingEnvironment -> env.getArgument(it.name) }
         }
 
     private fun sourceAnnotationHandler(param: Parameter): ParameterHandler? =
 
         param.getAnnotation(GraphQLSource::class.java)?.let {
-            { env: DataFetchingEnvironment -> env.getSource(param.type) }
+            { env: DataFetchingEnvironment -> env.getSource() }
         }
 
     private fun dataFetchingEnvironmentParameterTypeHandler(param: Parameter): ParameterHandler? =
@@ -99,9 +99,5 @@ open class MethodHandlerFactory {
         if (param.type.isAssignableFrom(DataFetchingEnvironment::class.java)) {
             { env: DataFetchingEnvironment -> env }
         } else null
-
-    private fun <T> DataFetchingEnvironment.getArgument(name: String, clazz: Class<T>): T = getArgument<T>(name)
-
-    private fun <T> DataFetchingEnvironment.getSource(clazz: Class<T>): T = getSource<T>()
 
 }
