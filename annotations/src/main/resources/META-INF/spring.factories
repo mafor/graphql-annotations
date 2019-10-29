@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+com.chaosonic.graphql.annotations.GraphQLConfiguration,\
+com.chaosonic.graphql.web.GraphQLController

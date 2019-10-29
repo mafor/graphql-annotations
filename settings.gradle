@@ -1,1 +1,5 @@
-rootProject.name = 'GraphQLPlayground'
+rootProject.name = 'graphql-parent'
+include 'annotations'
+include 'example'
+
+
