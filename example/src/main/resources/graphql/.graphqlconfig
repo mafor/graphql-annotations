@@ -1,4 +1,12 @@
 {
   "name": "Library GraphQL Schema",
-  "schemaPath": "schema.graphql"
+  "schemaPath": "schema.graphql",
+  "extensions": {
+    "endpoints": {
+      "Default GraphQL Endpoint": {
+        "url": "http://localhost:8080/graphql",
+        "introspect": false
+      }
+    }
+  }
 }
