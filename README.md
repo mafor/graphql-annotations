@@ -4,7 +4,7 @@
 # GraphQL playground
 
 GraphQL Java + SpringBoot + WebFlux evaluation. 
-Prove of concept of a declarative, annotations based configuration (see [GraphQLHandler](/src/main/java/com/chaosonic/graphql/GraphQLHandler.kt))
+Prove of concept of a declarative, annotations based configuration (see [GraphQLHandler](/examples/library/src/main/kotlin/com/chaosonic/graphql/library/GraphQLHandler.kt))
 ## Starting the application
 To start the application localy, run in the project's root folder:
 
@@ -14,12 +14,12 @@ To start the application localy, run in the project's root folder:
 To start it on Docker:
 ```shell script
 ./gradlew clean bootJar
-docker build -t graphql-playground .
-docker run -d --rm -p 8080:8080 graphql-playground
+docker build -t graphql-library examples/library
+docker run -d --rm -p 8080:8080 graphql-library
 ```
 The application exposes single GraphQL endpoint on http://localhost:8080/graphql 
 ## Sample queries
-GraphQL schema: [src/main/resources/graphql/schema.graphqls](src/main/resources/graphql/schema.graphqls)
+GraphQL schema: [schema.graphqls](examples/library/src/main/resources/graphql/schema.graphqls)
 #### list books
 GraphQL:
 ```graphql
