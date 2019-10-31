@@ -1,8 +1,8 @@
-package com.chaosonic.graphql.example.data.impl
+package com.chaosonic.graphql.library.data.impl
 
-import com.chaosonic.graphql.example.data.Author
-import com.chaosonic.graphql.example.data.Book
-import com.chaosonic.graphql.example.data.DataRepository
+import com.chaosonic.graphql.library.data.Author
+import com.chaosonic.graphql.library.data.Book
+import com.chaosonic.graphql.library.data.DataRepository
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties
 import com.fasterxml.jackson.annotation.JsonProperty

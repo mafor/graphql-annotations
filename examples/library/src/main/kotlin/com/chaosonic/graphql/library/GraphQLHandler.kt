@@ -1,8 +1,8 @@
-package com.chaosonic.graphql.example
+package com.chaosonic.graphql.library
 
-import com.chaosonic.graphql.example.data.Author
-import com.chaosonic.graphql.example.data.Book
-import com.chaosonic.graphql.example.data.DataRepository
+import com.chaosonic.graphql.library.data.Author
+import com.chaosonic.graphql.library.data.Book
+import com.chaosonic.graphql.library.data.DataRepository
 import com.chaosonic.graphql.annotations.GraphQLArgument
 import com.chaosonic.graphql.annotations.GraphQLMapping
 import com.chaosonic.graphql.annotations.GraphQLSource

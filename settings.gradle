@@ -1,5 +1,5 @@
 rootProject.name = 'graphql-parent'
 include 'annotations'
-include 'example'
+include 'examples:library'
 
 

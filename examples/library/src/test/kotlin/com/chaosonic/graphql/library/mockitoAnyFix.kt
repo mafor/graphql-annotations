@@ -1,4 +1,4 @@
-package com.chaosonic.graphql.example
+package com.chaosonic.graphql.library
 
 import org.mockito.Mockito
 

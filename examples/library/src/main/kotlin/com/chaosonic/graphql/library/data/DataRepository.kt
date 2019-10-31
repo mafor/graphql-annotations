@@ -1,4 +1,4 @@
-package com.chaosonic.graphql.example.data
+package com.chaosonic.graphql.library.data
 
 data class Book (
     val id: String = "",

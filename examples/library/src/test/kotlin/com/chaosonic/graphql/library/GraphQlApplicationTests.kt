@@ -1,9 +1,10 @@
-package com.chaosonic.graphql.example
+package com.chaosonic.graphql.library
 
 import com.jayway.jsonpath.Configuration
 import com.jayway.jsonpath.DocumentContext
 import com.jayway.jsonpath.JsonPath
 import com.jayway.jsonpath.Option
+import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -53,7 +54,7 @@ class GraphQlApplicationTests {
 
         val document = getRequest("{books(id: \"1\") {id, title, authors {name}}}")
 
-        assertThat(document.read("$.errors", List::class.java)).isNull()
+        assertThat(document.read<List<*>>("$.errors")).isNull()
         assertThat(document.read("$.data", Object::class.java)).isNotNull()
         assertThat(document.read("$.data.books.length()", Int::class.java)).isEqualTo(1)
         assertThat(document.read("$.data.books[0].id", Int::class.java)).isEqualTo(1)
@@ -95,4 +96,5 @@ class GraphQlApplicationTests {
 
         return JsonPath.using(jsonPathConfig).parse(response.body)
     }
+
 }
