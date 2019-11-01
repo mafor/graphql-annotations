@@ -1,15 +1,9 @@
 package com.chaosonic.graphql.library.data
 
-import com.chaosonic.graphql.library.data.impl.AuthorBook
-import com.chaosonic.graphql.library.data.impl.Authors
-import com.chaosonic.graphql.library.data.impl.Books
-import com.chaosonic.graphql.library.data.impl.DbMemoryDataRepository
-import org.assertj.core.api.Assertions
-import org.assertj.core.api.Assertions.assertThat
-import org.jetbrains.exposed.dao.EntityID
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
-import org.jetbrains.exposed.dao.LongIdTable
+import com.chaosonic.graphql.library.AuthorBook
+import com.chaosonic.graphql.library.Authors
+import com.chaosonic.graphql.library.Books
+import com.chaosonic.graphql.library.DbMemoryDataRepository
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.junit.Test
@@ -109,7 +103,11 @@ class DataRepositoryTest {
         val repo = DbMemoryDataRepository(db)
 
         transaction(db) {
-            SchemaUtils.create(Books, Authors, AuthorBook)
+            SchemaUtils.create(
+                Books,
+                Authors,
+                AuthorBook
+            )
             val author = repo.addAuthor(Author(name = "Johny"))
             repo.addBook(Book(title = "Test", authorIds = listOf(author.id)))
         }

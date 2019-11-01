@@ -1,11 +1,15 @@
 type QueryType {
-    books(
+    book(
         id: String
+    ): Book
+    books(
         titleRegex: String
         authorId: String
-    ): [Book!]!,
-    authors(
+    ): [Book!]!
+    author(
         id: String
+    ): Author
+    authors(
         nameRegex: String
     ): [Author!]!
 }
@@ -14,11 +18,15 @@ type MutationType {
     addBook(
         title: String,
         authorIds: [String!]!
-    ): Book!,
+    ): Book!
     removeBook(id: String) : Boolean!
     addAuthor(
         name: String
     ): Author!
+}
+
+type SubscriptionType {
+    events: String
 }
 
 type Book {
@@ -36,4 +44,5 @@ type Author {
 schema {
     query: QueryType
     mutation: MutationType
+    subscription: SubscriptionType
 }
