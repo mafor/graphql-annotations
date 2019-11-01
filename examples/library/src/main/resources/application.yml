@@ -1,2 +1,4 @@
 management:
   endpoints.web.exposure.include: health
+spring.h2.console.enabled: true
+spring.h2.console.path: /h2-console
