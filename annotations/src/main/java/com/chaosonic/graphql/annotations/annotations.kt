@@ -24,7 +24,7 @@ annotation class GraphQLMapping(
 @Retention(AnnotationRetention.RUNTIME)
 @MustBeDocumented
 annotation class GraphQLArgument(
-    val name: String
+    val name: String = ""
 )
 
 @Target(AnnotationTarget.VALUE_PARAMETER)

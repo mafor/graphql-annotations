@@ -85,7 +85,11 @@ open class MethodHandlerFactory {
     private fun graphQLArgumentAnnotationHandler(param: Parameter): ParameterHandler? =
 
         param.getAnnotation(GraphQLArgument::class.java)?.let {
-            { env: DataFetchingEnvironment -> env.getArgument(it.name) }
+            if(it.name.isBlank()) {
+                { env: DataFetchingEnvironment -> env.getArgument(param.name) }
+            } else {
+                { env: DataFetchingEnvironment -> env.getArgument(it.name) }
+            }
         }
 
     private fun sourceAnnotationHandler(param: Parameter): ParameterHandler? =
