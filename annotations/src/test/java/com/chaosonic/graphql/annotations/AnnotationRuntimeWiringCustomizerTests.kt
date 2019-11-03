@@ -108,6 +108,12 @@ class MethodHandlerFactoryTest {
 
         @GraphQLMapping(type = "Type A", field = "field B")
         fun test5(param : String) = "OK"
+
+        @GraphQLMapping(type = "Type A", field = "field B")
+        fun test6(@GraphQLArgument param : String) = "OK"
+
+        @GraphQLMapping(type = "Type A", field = "field B")
+        fun test7(params : Map<String, String>) = "OK"
     }
 
     @Mock
@@ -170,13 +176,40 @@ class MethodHandlerFactoryTest {
     }
 
     @Test
-    fun shouldBreakOnNotAnnotatedParameter() {
+    fun shouldUseParameterNameWhenNoAnnotationsArePresent() {
         // given
         val method = TestGraphGLHandler::class.java.getMethod("test5", String::class.java)
-        // then
-        thrown.expect(GraphQLConfigurationError::class.java)
+        `when`(dataFetchingEnvironment.getArgument("param") as String?).thenReturn("VALUE")
         // when
-        methodHandlerFactory.create(bean, method)
+        val methodHandler = methodHandlerFactory.create(bean, method)
+        methodHandler.invoke(dataFetchingEnvironment)
+        // then
+        verify(bean, times(1)).test5("VALUE")
+    }
+
+    @Test
+    fun shouldUseParameterNameWhenNameNotSpecified() {
+        // given
+        val method = TestGraphGLHandler::class.java.getMethod("test6", String::class.java)
+        `when`(dataFetchingEnvironment.getArgument("param") as String?).thenReturn("VALUE")
+        // when
+        val methodHandler = methodHandlerFactory.create(bean, method)
+        methodHandler.invoke(dataFetchingEnvironment)
+        // then
+        verify(bean, times(1)).test6("VALUE")
+    }
+
+    @Test
+    fun shouldInjectArgumentsMap() {
+        // given
+        val method = TestGraphGLHandler::class.java.getMethod("test7", Map::class.java)
+        val args = emptyMap<String, String>()
+        `when`(dataFetchingEnvironment.arguments).thenReturn(args)
+        // when
+        val methodHandler = methodHandlerFactory.create(bean, method)
+        methodHandler.invoke(dataFetchingEnvironment)
+        // then
+        verify(bean, times(1)).test7(args)
     }
 }
 
@@ -223,4 +256,6 @@ class GraphQLMappingValidatorTest {
         // when
         graphQLMappingValidator.validate(method.getAnnotation(GraphQLMapping::class.java), method)
     }
+
+
 }
