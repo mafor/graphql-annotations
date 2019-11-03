@@ -1,85 +1,78 @@
 package com.chaosonic.graphql.library
 
-import com.chaosonic.graphql.library.data.Author
-import com.chaosonic.graphql.library.data.Book
-import com.chaosonic.graphql.library.data.DataRepository
 import com.chaosonic.graphql.annotations.GraphQLArgument
+import com.chaosonic.graphql.annotations.GraphQLHandler
 import com.chaosonic.graphql.annotations.GraphQLMapping
 import com.chaosonic.graphql.annotations.GraphQLSource
-import com.chaosonic.graphql.annotations.GraphQLHandler
 
 @GraphQLHandler
-class GraphQLHandler(val dataRepository: DataRepository) {
+class GraphQLHandler(val repository: Repository, val observer: Observer) {
 
     @GraphQLMapping("QueryType", "books")
-    fun listBooks(@GraphQLArgument("id") id : String?,
-                  @GraphQLArgument("authorId") authorId : String?,
-                  @GraphQLArgument("titleRegex") titleRegex : String?): List<Book> {
+    fun listBooks(@GraphQLArgument id : String?,
+                  @GraphQLArgument authorId : String?,
+                  @GraphQLArgument title : String?,
+                  @GraphQLArgument offset: Int?,
+                  @GraphQLArgument limit: Int?): Page<Book> =
 
-        if (id != null) {
-            val book = dataRepository.getBook(id)
-            return if(book != null) listOf(book) else emptyList()
-        }
+        repository.listBooks(
+            id = id,
+            authorId = authorId,
+            title = title,
+            offset = offset ?: 0,
+            limit = limit ?: 10)
 
-        var books = dataRepository.listBooks().asSequence()
-
-        if (authorId != null) {
-            books = books.filter { b -> b.authorIds.contains(authorId) }
-        }
-        if (titleRegex != null) {
-            val regex = titleRegex.toRegex()
-            books = books.filter { b -> regex.matches(b.title) }
-        }
-
-        return books.toList()
-    }
 
     @GraphQLMapping("Book", "authors")
-    fun authors(@GraphQLSource book : Book): List<Author> =
+    fun authors(@GraphQLSource book : Book): Iterable<Author> =
 
-        book.authorIds.mapNotNull { dataRepository.getAuthor(it) }
+        repository.listAuthors(bookId = book.id).data
 
 
     @GraphQLMapping("MutationType", "addBook")
-    fun addBook(
-        @GraphQLArgument("title") title : String,
-        @GraphQLArgument("authorIds") authorIds : List<String>): Book? =
+    fun addBook(@GraphQLArgument title : String,
+                @GraphQLArgument authorIds : List<String>): Book? =
 
-        dataRepository.addBook(Book(title = title, authorIds = authorIds))
+        repository.addBook(Book(title = title), authorIds)
 
 
     @GraphQLMapping("MutationType", "removeBook")
-    fun removeBook(@GraphQLArgument("id") id : String): Boolean =
+    fun removeBook(@GraphQLArgument id : String): Boolean =
 
-        dataRepository.removeBook(id)
+        repository.removeBook(id)
 
 
     @GraphQLMapping("QueryType", "authors")
-    fun listAuthors(@GraphQLArgument("id") id : String?,
-                    @GraphQLArgument("nameRegex") nameRegex : String?): List<Author> {
+    fun listAuthors(@GraphQLArgument id : String?,
+                    @GraphQLArgument name : String?,
+                    @GraphQLArgument offset: Int?,
+                    @GraphQLArgument limit: Int?): Page<Author> {
 
-        if (id != null) {
-            val author = dataRepository.getAuthor(id)
-            return if(author != null) listOf(author) else emptyList()
-        }
-
-        var authors = dataRepository.listAuthors().asSequence()
-
-        if (nameRegex != null) {
-            val regex = nameRegex.toRegex()
-            authors = authors.filter { b -> regex.matches(b.name) }
-        }
-        return authors.toList()
+        return repository.listAuthors(
+            id = id,
+            name = name,
+            offset = offset ?: 0,
+            limit = limit ?: 10)
     }
 
     @GraphQLMapping("Author", "books")
-    fun books(@GraphQLSource author : Author): List<Book> =
+    fun books(@GraphQLSource author : Author,
+              @GraphQLArgument titleRegex : String?,
+              @GraphQLArgument offset: Int?,
+              @GraphQLArgument limit: Int?): Iterable<Book> =
 
-        dataRepository.listBooks(author.id)
+        repository.listBooks(
+            authorId = author.id,
+            title = titleRegex,
+            offset = offset ?: 0,
+            limit = limit ?: 10).data
 
 
     @GraphQLMapping("MutationType", "addAuthor")
-    fun addAuthor(@GraphQLArgument("name") name : String): Author? =
+    fun addAuthor(@GraphQLArgument name : String): Author? =
 
-        dataRepository.addAuthor(Author(name = name))
+        repository.addAuthor(Author(name = name))
+
+    @GraphQLMapping("SubscriptionType", "events")
+    fun events() = observer.events
 }

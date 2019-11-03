@@ -96,3 +96,18 @@ curl --request POST \
   --header 'content-type: application/json' \
   --data '{"query":"mutation removeBook {removeBook(id: \"1\")}"}'
 ```
+#### subscribe to notifications
+GraphQL:
+```graphql
+subscription events {
+	events
+}
+```
+Curl:
+```shell script
+curl -N --request POST \
+  --url http://localhost:8080/graphql \
+  --header 'accept: text/event-stream' \
+  --header 'content-type: application/json' \
+  --data '{"query":"subscription events {events}"}'
+```
