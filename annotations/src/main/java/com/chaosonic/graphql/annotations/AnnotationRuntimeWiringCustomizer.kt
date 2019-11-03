@@ -65,7 +65,9 @@ open class MethodHandlerFactory {
     private val parameterHandlers = listOf(
         ::graphQLArgumentAnnotationHandler,
         ::sourceAnnotationHandler,
-        ::dataFetchingEnvironmentParameterTypeHandler
+        ::dataFetchingEnvironmentParameterTypeHandler,
+        ::mapParameterTypeHandler,
+        ::defaultHandler
     )
 
     fun create(bean: Any, method: Method): MethodHandler {
@@ -103,5 +105,15 @@ open class MethodHandlerFactory {
         if (param.type.isAssignableFrom(DataFetchingEnvironment::class.java)) {
             { env: DataFetchingEnvironment -> env }
         } else null
+
+    private fun mapParameterTypeHandler(param: Parameter): ParameterHandler? =
+
+        if (param.type.isAssignableFrom(Map::class.java)) {
+            { env: DataFetchingEnvironment -> env.arguments }
+        } else null
+
+    private fun defaultHandler(param: Parameter): ParameterHandler? =
+
+        { env: DataFetchingEnvironment -> env.getArgument(param.name) }
 
 }
