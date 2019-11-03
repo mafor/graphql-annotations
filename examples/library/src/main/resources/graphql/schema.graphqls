@@ -1,17 +1,21 @@
 type QueryType {
     book(
         id: String
-    ): Book
+    ): Book,
     books(
-        titleRegex: String
-        authorId: String
-    ): [Book!]!
+        title: String,
+        authorId: String,
+        offset: Int,
+        limit: Int
+    ): BookPage!,
     author(
         id: String
-    ): Author
+    ): Author,
     authors(
-        nameRegex: String
-    ): [Author!]!
+        name: String,
+        offset: Int,
+        limit: Int
+    ): AuthorPage!
 }
 
 type MutationType {
@@ -35,10 +39,28 @@ type Book {
     authors: [Author!]!
 }
 
+type BookPage {
+    offset: Int!
+    limit: Int!
+    total: Int!
+    data: [Book!]!
+}
+
 type Author {
     id: String!
     name: String!
-    books: [Book!]!
+    books(
+        title: String,
+        offset: Int,
+        limit: Int
+    ): [Book!]!
+}
+
+type AuthorPage {
+    offset: Int!
+    limit: Int!
+    total: Int!
+    data: [Author!]!
 }
 
 schema {

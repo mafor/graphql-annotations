@@ -8,10 +8,15 @@ import org.assertj.core.api.AbstractAssert
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.Test
 import org.junit.runner.RunWith
+import org.mockito.Mockito
+import org.mockito.Mockito.`when`
+import org.mockito.Mockito.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.context.annotation.Primary
 import org.springframework.http.MediaType
 import org.springframework.http.RequestEntity
 import org.springframework.test.context.junit4.SpringRunner
@@ -27,54 +32,77 @@ class GraphQlApplicationTests {
     @Value("\${graphql.path:graphql}")
     private var path: String? = null
 
+    @MockBean
+    private lateinit var repository: Repository
+
     private val jsonPathConfig = Configuration.defaultConfiguration().setOptions(Option.SUPPRESS_EXCEPTIONS)
 
     @Test
-    fun shouldReturnAllAuthors() {
-
-        val document = getRequest("{authors {name}}")
-
-        assertThat(document.read("$.errors", List::class.java)).isNull()
-        assertThat(document.read("$.data", Object::class.java)).isNotNull()
-        assertThat(document.read("$.data.authors.length()", Int::class.java)).isEqualTo(2)
+    fun shouldCallListAuthors() {
+        // given
+        `when`(repository.listAuthors())
+            .thenReturn(Page(0, 10, 1, listOf(Author("id", "name"))))
+        `when`(repository.listBooks(authorId = "id"))
+            .thenReturn(Page(0, 10, 1, listOf(Book("id", "title"))))
+        // when
+        postRequest ("{authors {data {name, books{title}}}}")
+        // then
+        verify (repository).listAuthors()
+        verify (repository).listBooks(authorId = "id")
     }
 
     @Test
-    fun shouldReturnAllBooks() {
-
-        val document = getRequest("{books {title}}")
-
-        assertThat(document.read("$.errors", List::class.java)).isNull()
-        assertThat(document.read("$.data", Object::class.java)).isNotNull()
-        assertThat(document.read("$.data.books.length()", Int::class.java)).isEqualTo(3)
+    fun shouldCallListAuthorsWithParameters() {
+        // when
+        postRequest("{authors(name: \"test\", offset: 5, limit: 5) {data {name}}}")
+        // then
+        verify(repository).listAuthors(name = "test", offset = 5, limit = 5)
     }
 
     @Test
-    fun shouldReturnOneBook() {
-
-        val document = getRequest("{books(id: \"1\") {id, title, authors {name}}}")
-
-        assertThat(document.read<List<*>>("$.errors")).isNull()
-        assertThat(document.read("$.data", Object::class.java)).isNotNull()
-        assertThat(document.read("$.data.books.length()", Int::class.java)).isEqualTo(1)
-        assertThat(document.read("$.data.books[0].id", Int::class.java)).isEqualTo(1)
-        assertThat(document.read("$.data.books[0].title", String::class.java)).isEqualTo("Book 1")
-        assertThat(document.read("$.data.books[0].authors.length()", Int::class.java)).isGreaterThan(0)
-
+    fun shouldCallAddAuthor() {
+        // when
+        postRequest("mutation {addAuthor(name: \"test\") {id, name}}")
+        // then
+        verify(repository).addAuthor(Author(name = "test"))
     }
 
     @Test
-    fun shouldReturnOneAuthor() {
+    fun shouldCallListBooks() {
+        // given
+        `when`(repository.listBooks())
+            .thenReturn(Page(0, 10, 1, listOf(Book("id", "title"))))
+        `when`(repository.listAuthors(bookId = "id"))
+            .thenReturn(Page(0, 10, 1, listOf(Author("id", "name"))))
+        // when
+        postRequest("{books {data {title, authors{name}}}}")
+        // then
+        verify(repository).listBooks()
+        verify(repository).listAuthors(bookId = "id")
+    }
 
-        val document = postRequest("{authors(id: \"1\") {id, name, books {title}}}")
+    @Test
+    fun shouldCallListBooksWithParameters() {
+        // when
+        postRequest("{books(title: \"test\", authorId:\"x\", offset: 5, limit: 5) {data {title}}}")
+        // then
+        verify(repository).listBooks(title = "test", authorId = "x", offset = 5, limit = 5)
+    }
 
-        assertThat(document.read("$.errors", List::class.java)).isNull()
-        assertThat(document.read("$.data", Object::class.java)).isNotNull()
-        assertThat(document.read("$.data.authors.length()", Int::class.java)).isEqualTo(1)
-        assertThat(document.read("$.data.authors[0].id", Int::class.java)).isEqualTo(1)
-        assertThat(document.read("$.data.authors[0].name", String::class.java)).isEqualTo("Author 1")
-        assertThat(document.read("$.data.authors[0].books.length()", Int::class.java)).isGreaterThan(0)
+    @Test
+    fun shouldCallAddBook() {
+        // when
+        postRequest("mutation {addBook(title: \"test\", authorIds: [\"test\"]) {id, title}}")
+        // then
+        verify(repository).addBook(Book(title = "test"), listOf("test"))
+    }
 
+    @Test
+    fun shouldCallRemoveBook() {
+        // when
+        postRequest("mutation {removeBook(id: \"test\")}")
+        // then
+        verify(repository).removeBook("test")
     }
 
     fun getRequest(query :String) : DocumentContext {
@@ -96,5 +124,4 @@ class GraphQlApplicationTests {
 
         return JsonPath.using(jsonPathConfig).parse(response.body)
     }
-
 }

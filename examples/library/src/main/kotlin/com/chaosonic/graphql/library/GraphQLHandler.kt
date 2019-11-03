@@ -11,15 +11,22 @@ class GraphQLHandler(val repository: Repository, val observer: Observer) {
     @GraphQLMapping("QueryType", "books")
     fun listBooks(@GraphQLArgument id : String?,
                   @GraphQLArgument authorId : String?,
-                  @GraphQLArgument titleRegex : String?): List<Book> =
+                  @GraphQLArgument title : String?,
+                  @GraphQLArgument offset: Int?,
+                  @GraphQLArgument limit: Int?): Page<Book> =
 
-        repository.listBooksEx(id = id, authorId = authorId, title = titleRegex)
+        repository.listBooks(
+            id = id,
+            authorId = authorId,
+            title = title,
+            offset = offset ?: 0,
+            limit = limit ?: 10)
 
 
     @GraphQLMapping("Book", "authors")
-    fun authors(@GraphQLSource book : Book): List<Author> =
+    fun authors(@GraphQLSource book : Book): Iterable<Author> =
 
-        repository.listAuthors(bookId = book.id)
+        repository.listAuthors(bookId = book.id).data
 
 
     @GraphQLMapping("MutationType", "addBook")
@@ -37,15 +44,28 @@ class GraphQLHandler(val repository: Repository, val observer: Observer) {
 
     @GraphQLMapping("QueryType", "authors")
     fun listAuthors(@GraphQLArgument id : String?,
-                    @GraphQLArgument nameRegex : String?): List<Author> {
+                    @GraphQLArgument name : String?,
+                    @GraphQLArgument offset: Int?,
+                    @GraphQLArgument limit: Int?): Page<Author> {
 
-        return repository.listAuthors(id = id, name = nameRegex)
+        return repository.listAuthors(
+            id = id,
+            name = name,
+            offset = offset ?: 0,
+            limit = limit ?: 10)
     }
 
     @GraphQLMapping("Author", "books")
-    fun books(@GraphQLSource author : Author): List<Book> =
+    fun books(@GraphQLSource author : Author,
+              @GraphQLArgument titleRegex : String?,
+              @GraphQLArgument offset: Int?,
+              @GraphQLArgument limit: Int?): Iterable<Book> =
 
-        repository.listBooksEx(authorId = author.id)
+        repository.listBooks(
+            authorId = author.id,
+            title = titleRegex,
+            offset = offset ?: 0,
+            limit = limit ?: 10).data
 
 
     @GraphQLMapping("MutationType", "addAuthor")

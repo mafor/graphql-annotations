@@ -17,8 +17,15 @@ data class Author (
     val name: String
 )
 
+data class Page<T>(
+    val offset: Int,
+    val limit: Int,
+    val total: Int,
+    val data: Iterable<T>
+)
+
 object Books : UUIDTable() {
-    val title = varchar("name", 50).index(isUnique = false)
+    val title = varchar("title", 50).index(isUnique = false)
 }
 
 object Authors : UUIDTable() {
@@ -33,7 +40,13 @@ object AuthorBook : Table() {
 @Service
 class Repository(val database: Database, val observer : Observer) {
 
-    fun listBooksEx(id: String? = null, title: String? = null, authorId: String? = null): List<Book> {
+    fun listBooks(
+        id: String? = null,
+        title: String? = null,
+        authorId: String? = null,
+        offset: Int = 0,
+        limit: Int = 10
+    ): Page<Book> {
 
         var where: Op<Boolean> = Op.TRUE
 
@@ -41,14 +54,26 @@ class Repository(val database: Database, val observer : Observer) {
             where = Op.build { Books.id eq UUID.fromString(id) }
         }
         if (title != null) {
-            where = Op.build { where and (Books.title like title) }
+            where = where and Op.build { Books.title like title }
         }
         if (authorId != null) {
-            where = Op.build { where and (AuthorBook.author eq UUID.fromString(authorId)) }
+            where = where and Op.build { AuthorBook.author eq UUID.fromString(authorId) }
         }
 
+        val query = (Books leftJoin AuthorBook)
+            .slice(Books.id, Books.title)
+            .select { where }
+            .groupBy(Books.id, Books.title)
+
         return transaction(database) {
-            (Books leftJoin AuthorBook).select { where }.map(::mapBook)
+
+            val count = query.count()
+            val data = query
+                .orderBy(Books.title)
+                .limit(limit, offset)
+                .map(::mapBook)
+
+            Page(offset, limit, count, data)
         }
     }
 
@@ -59,7 +84,13 @@ class Repository(val database: Database, val observer : Observer) {
             title = row[Books.title]
         )
 
-    fun listAuthors(id: String? = null, name: String? = null, bookId: String? = null): List<Author> {
+    fun listAuthors(
+        id: String? = null,
+        name: String? = null,
+        bookId: String? = null,
+        offset: Int = 0,
+        limit: Int = 10
+    ): Page<Author> {
 
         var where: Op<Boolean> = Op.TRUE
 
@@ -73,8 +104,20 @@ class Repository(val database: Database, val observer : Observer) {
             where = Op.build { where and (AuthorBook.book eq UUID.fromString(bookId)) }
         }
 
+        val query = (Authors leftJoin AuthorBook)
+            .slice(Authors.id, Authors.name)
+            .select { where }
+            .groupBy(Authors.id, Authors.name)
+
         return transaction(database) {
-            (Authors leftJoin AuthorBook).select { where }.map(::mapAuthor)
+
+            val count = query.count()
+            val data = query
+                .orderBy(Authors.name)
+                .limit(limit, offset)
+                .map(::mapAuthor)
+
+            Page(offset, limit, count, data)
         }
     }
 
