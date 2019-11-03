@@ -32,6 +32,7 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions {
         jvmTarget = javaVersion
+        javaParameters = true
     }
 }
 jacocoTestReport {

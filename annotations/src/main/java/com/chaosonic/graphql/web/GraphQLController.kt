@@ -22,7 +22,7 @@ class GraphQLController(val graphQl: GraphQL) {
         @NotBlank
         var query: String? = null
         var operationName: String? = null
-        val variables: Map<String, String> = HashMap()
+        val variables: Map<String, Any> = HashMap()
 
         fun toExecutionInput() =
             ExecutionInput.newExecutionInput()
