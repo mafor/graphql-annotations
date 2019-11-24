@@ -1,7 +1,7 @@
 [![codecov](https://codecov.io/gh/mafor/graphql-playground/branch/master/graph/badge.svg?token=GDPwHlsKi1)](https://codecov.io/gh/mafor/graphql-playground)
 [![Build status](https://teamcity.jetbrains.com/guestAuth/app/rest/builds/buildType:(id:TestDrive_GraphqlPlayground_Build)/statusIcon.svg)](https://teamcity.jetbrains.com/viewType.html?buildTypeId=TestDrive_GraphqlPlayground_Build)
 
-# GraphQL playground
+# GraphQL annotations
 
 GraphQL Java + SpringBoot + WebFlux evaluation. 
 Prove of concept of a declarative, annotations based configuration (see [GraphQLHandler](/examples/library/src/main/kotlin/com/chaosonic/graphql/library/GraphQLHandler.kt))
