@@ -19,9 +19,9 @@ class AnnotationRuntimeWiringCustomizer(
     private val methodHandlerFactory: MethodHandlerFactory
 ) : RuntimeWiringCustomizer {
 
-    @Suppress("JAVA_CLASS_ON_COMPANION")
     private companion object {
         @JvmStatic
+        @Suppress("JAVA_CLASS_ON_COMPANION")
         private val log = LoggerFactory.getLogger(javaClass.enclosingClass)
     }
 
@@ -31,16 +31,12 @@ class AnnotationRuntimeWiringCustomizer(
             bean.javaClass.declaredMethods.forEach { method ->
                 method.getDeclaredAnnotation(GraphQLMapping::class.java)?.let { annotation ->
 
-                    log.info("Registering data fetcher for the ${annotation.type}.${annotation.field} [${location(
-                        method
-                    )}]")
+                    log.info(
+                        "Registering data fetcher for the ${annotation.type}.${annotation.field} [${location(method)}]")
                     validator.validate(annotation, method)
 
                     builder.type(annotation.type) {
-                        it.dataFetcher(
-                            annotation.field,
-                            methodHandlerFactory.create(bean, method)
-                        )
+                        it.dataFetcher(annotation.field, methodHandlerFactory.create(bean, method))
                     }
                 }
             }
@@ -76,9 +72,7 @@ open class MethodHandlerFactory {
             .map { param ->
                 parameterHandlers.asSequence().map { it(param) }.firstOrNull { it != null }
                     ?: throw GraphQLConfigurationError(
-                        "Unknown parameter '${param.name}' [${location(
-                            method
-                        )}]"
+                        "Unknown parameter '${param.name}' [${location(method)}]"
                     )
             }
             .let { params -> { env -> method.invoke(bean, *(params.map { h -> h(env) }.toTypedArray())) } }
